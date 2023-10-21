@@ -4,11 +4,11 @@
  * Version            : V1.0.0
  * Date               : 2023/04/06
  * Description        : Main program body.
-*********************************************************************************
-* Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
-* Attention: This software (modified or not) and binary are used for
-* microcontroller manufactured by Nanjing Qinheng Microelectronics.
-*******************************************************************************/
+ *********************************************************************************
+ * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
+ * Attention: This software (modified or not) and binary are used for
+ * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ *******************************************************************************/
 
 /*
  *@Note
@@ -17,7 +17,7 @@
  *
  * This sample code may have compatibility issues and is for learning purposes only.
  * If you want to develop a PD project, please contact FAE.
- 
+
  * Make sure that the board is not powered on before use.
  * Be sure to pay attention to the voltage when changing the request
  * to prevent burning the board.
@@ -39,7 +39,7 @@
 
 void TIM1_UP_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
-UINT8  Tim_Ms_Cnt = 0x00;
+UINT8 Tim_Ms_Cnt = 0x00;
 
 /*********************************************************************
  * @fn      TIM1_Init
@@ -48,21 +48,21 @@ UINT8  Tim_Ms_Cnt = 0x00;
  *
  * @return  none
  */
-void TIM1_Init( u16 arr, u16 psc )
+void TIM1_Init(u16 arr, u16 psc)
 {
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM1, ENABLE );
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 
     TIM_TimeBaseInitStructure.TIM_Period = arr;
     TIM_TimeBaseInitStructure.TIM_Prescaler = psc;
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0x00;
-    TIM_TimeBaseInit( TIM1, &TIM_TimeBaseInitStructure);
+    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseInitStructure);
 
-    TIM_ClearITPendingBit( TIM1, TIM_IT_Update );
+    TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
 
     NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
@@ -70,9 +70,9 @@ void TIM1_Init( u16 arr, u16 psc )
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    TIM_ITConfig( TIM1, TIM_IT_Update, ENABLE );
+    TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 
-    TIM_Cmd( TIM1, ENABLE );
+    TIM_Cmd(TIM1, ENABLE);
 }
 
 /*********************************************************************
@@ -87,31 +87,31 @@ int main(void)
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     SystemCoreClockUpdate();
     Delay_Init();
-    USART_Printf_Init(921600);
+    USART_Printf_Init(115200);
 
-    printf( "SystemClk:%d\r\n", SystemCoreClock );
-    printf( "ChipID:%08x\r\n", DBGMCU_GetCHIPID() );
-    printf( "PD SNK TEST\r\n" );
+    printf("SystemClk:%d\r\n", SystemCoreClock);
+    printf("ChipID:%08x\r\n", DBGMCU_GetCHIPID());
+    printf("PD SNK TEST\r\n");
 
-    PD_Init( );
-    TIM1_Init( 999, 48-1);
+    PD_Init();
+    TIM1_Init(999, 48 - 1);
 
-    while(1)
+    while (1)
     {
         /* Get the calculated timing interval value */
-        TIM_ITConfig( TIM1, TIM_IT_Update , DISABLE );
+        TIM_ITConfig(TIM1, TIM_IT_Update, DISABLE);
         Tmr_Ms_Dlt = Tim_Ms_Cnt - Tmr_Ms_Cnt_Last;
         Tmr_Ms_Cnt_Last = Tim_Ms_Cnt;
-        TIM_ITConfig( TIM1, TIM_IT_Update , ENABLE );
+        TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
 
         PD_Ctl.Det_Timer += Tmr_Ms_Dlt;
-        if( PD_Ctl.Det_Timer > 4 )
+        if (PD_Ctl.Det_Timer > 4)
         {
             PD_Ctl.Det_Timer = 0;
-            PD_Det_Proc( );
+            PD_Det_Proc();
         }
 
-        PD_Main_Proc( );
+        PD_Main_Proc();
     }
 }
 
@@ -124,9 +124,9 @@ int main(void)
  */
 void TIM1_UP_IRQHandler(void)
 {
-    if( TIM_GetITStatus( TIM1, TIM_IT_Update ) != RESET )
+    if (TIM_GetITStatus(TIM1, TIM_IT_Update) != RESET)
     {
         Tim_Ms_Cnt++;
-        TIM_ClearITPendingBit( TIM1, TIM_IT_Update );
+        TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
     }
 }
